@@ -32,10 +32,11 @@ abstract class KVDataTest(sc: SparkContext, dataType: String = "string") extends
   val STORAGE_LOCATION = ("storage-location", "directory used for storage with 'hdfs' persistence type")
   val HASH_RECORDS =     ("hash-records", "Use hashes instead of padded numbers for keys and values")
   val WAIT_FOR_EXIT =    ("wait-for-exit", "JVM will not exit until input is received from stdin")
+  val SKEWNESS =         ("skewness", "Degree of data skewness")
 
   val longOptions = Seq(NUM_RECORDS)
   val intOptions = Seq(NUM_TRIALS, INTER_TRIAL_WAIT, REDUCE_TASKS, KEY_LENGTH, VALUE_LENGTH, UNIQUE_KEYS,
-    UNIQUE_VALUES, NUM_PARTITIONS, RANDOM_SEED)
+    UNIQUE_VALUES, NUM_PARTITIONS, RANDOM_SEED, SKEWNESS)
   val stringOptions = Seq(PERSISTENCE_TYPE, STORAGE_LOCATION)
   val booleanOptions = Seq(WAIT_FOR_EXIT, HASH_RECORDS)
   val options = longOptions ++ intOptions ++ stringOptions  ++ booleanOptions
@@ -74,6 +75,7 @@ abstract class KVDataTest(sc: SparkContext, dataType: String = "string") extends
     val valueLength: Int = optionSet.valueOf(VALUE_LENGTH._1).asInstanceOf[Int]
     val numPartitions: Int = optionSet.valueOf(NUM_PARTITIONS._1).asInstanceOf[Int]
     val randomSeed: Int = optionSet.valueOf(RANDOM_SEED._1).asInstanceOf[Int]
+    val skewness: Int = optionSet.valueof(SKEWNESS._1).asInstanceOf[Int]
     val persistenceType: String = optionSet.valueOf(PERSISTENCE_TYPE._1).asInstanceOf[String]
     val storageLocation: String = optionSet.valueOf(STORAGE_LOCATION._1).asInstanceOf[String]
 
@@ -91,10 +93,10 @@ abstract class KVDataTest(sc: SparkContext, dataType: String = "string") extends
     rdd = dataType match {
       case "string" =>
         DataGenerator.createKVStringDataSet(sc, numRecords, uniqueKeys, keyLength, uniqueValues,
-          valueLength, numPartitions, randomSeed, persistenceType, storageLocation, hashFunction)
+          valueLength, numPartitions, randomSeed, skewness, persistenceType, storageLocation, hashFunction)
       case "int" =>
         DataGenerator.createKVIntDataSet(sc, numRecords, uniqueKeys, uniqueValues,
-          numPartitions, randomSeed, persistenceType, storageLocation)
+          numPartitions, randomSeed, skewness, persistenceType, storageLocation)
       case _ =>
         throw new IllegalArgumentException("Unknown data type: " + dataType)
     }

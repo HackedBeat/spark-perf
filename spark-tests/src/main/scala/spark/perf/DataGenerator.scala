@@ -54,6 +54,36 @@ object DataGenerator {
     }}
   }
 
+  private def generateIntSkewData(
+                               sc: SparkContext,
+                               numRecords: Long,
+                               uniqueKeys: Int,
+                               uniqueValues: Int,
+                               numPartitions: Int,
+                               randomSeed: Int,
+                               skewness: Int) : RDD[(Int, Int)] =
+  {
+    val recordsPerPartition = (numRecords / numPartitions.toDouble).toInt
+
+    def generatePartition(index: Int) = {
+
+      // Use per-partition seeds to avoid having identical data at all partitions
+      val effectiveSeed = (randomSeed ^ index).toString.hashCode
+      val skewGenerator = new ZipfGenerator(uniqueKeys, skewness, effectiveSeed)
+
+      val r = new Random(effectiveSeed)
+      (1 to recordsPerPartition).map{i =>
+        val key = skewGenerator.next()
+        val value = r.nextInt(uniqueValues)
+        (key, value)
+      }.iterator
+    }
+
+    sc.parallelize(Seq[Int](), numPartitions).mapPartitionsWithIndex{case (index, n) => {
+      generatePartition(index)
+    }}
+  }
+
   /** Creates and materializes a (K, V) int dataset according to the supplied parameters. */
   def createKVIntDataSet(
       sc: SparkContext,
@@ -62,12 +92,13 @@ object DataGenerator {
       uniqueValues: Int,
       numPartitions: Int,
       randomSeed: Int,
+      skewness: Int,
       persistenceType: String,
       storageLocation: String = "/tmp/spark-perf-kv-data")
     : RDD[(Int, Int)] =
   {
-    val inputRDD = generateIntData(
-      sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed)
+    val inputRDD = if (skewness < 0) generateIntData(
+      sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed) else generateIntSkewData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
 
     val rdd = persistenceType match {
       case "memory" => {
@@ -109,13 +140,15 @@ object DataGenerator {
       valueLength: Int,
       numPartitions: Int,
       randomSeed: Int,
+      skewness: Int,
       persistenceType: String,
       storageLocation: String = "/tmp/spark-perf-kv-data",
       hashFunction: Option[HashFunction] = None)
     : RDD[(String, String)] =
   {
-    val ints = generateIntData(
-      sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed)
+    val ints = if (skewness < 0) generateIntData(
+      sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed) else generateIntSkewData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
+
     val inputRDD = ints.map { case (k, v) =>
       (paddedString(k, keyLength, hashFunction), paddedString(v, valueLength, hashFunction))
     }
