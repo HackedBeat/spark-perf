@@ -28,33 +28,6 @@ object DataGenerator {
 
   /** Creates a key-value int dataset but does not cache it, allowing for subsequent processing */
   private def generateIntData(
-      sc: SparkContext,
-      numRecords: Long,
-      uniqueKeys: Int,
-      uniqueValues: Int,
-      numPartitions: Int,
-      randomSeed: Int)
-    : RDD[(Int, Int)] =
-  {
-    val recordsPerPartition = (numRecords / numPartitions.toDouble).toInt
-
-    def generatePartition(index: Int) = {
-      // Use per-partition seeds to avoid having identical data at all partitions
-      val effectiveSeed = (randomSeed ^ index).toString.hashCode
-      val r = new Random(effectiveSeed)
-      (1 to recordsPerPartition).map{i =>
-        val key = r.nextInt(uniqueKeys)
-        val value = r.nextInt(uniqueValues)
-        (key, value)
-      }.iterator
-    }
-
-    sc.parallelize(Seq[Int](), numPartitions).mapPartitionsWithIndex{case (index, n) => {
-      generatePartition(index)
-    }}
-  }
-
-  private def generateIntSkewData(
                                sc: SparkContext,
                                numRecords: Long,
                                uniqueKeys: Int,
@@ -97,8 +70,7 @@ object DataGenerator {
       storageLocation: String = "/tmp/spark-perf-kv-data")
     : RDD[(Int, Int)] =
   {
-    val inputRDD = if (skewness < 0) generateIntData(
-      sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed) else generateIntSkewData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
+    val inputRDD = generateIntData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
 
     val rdd = persistenceType match {
       case "memory" => {
@@ -146,8 +118,7 @@ object DataGenerator {
       hashFunction: Option[HashFunction] = None)
     : RDD[(String, String)] =
   {
-    val ints = if (skewness < 0) generateIntData(
-      sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed) else generateIntSkewData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
+    val ints = generateIntData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
 
     val inputRDD = ints.map { case (k, v) =>
       (paddedString(k, keyLength, hashFunction), paddedString(v, valueLength, hashFunction))
