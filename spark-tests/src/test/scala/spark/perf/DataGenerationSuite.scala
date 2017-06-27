@@ -287,4 +287,134 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
     run(2, 10)
     run(10, 2)
   }
+
+  test("no data skew") {
+    def run(_uniqueKeys: Int, _uniqueValues: Int) = {
+
+      val skew = 0
+      val seed = 3333
+      val numRecords = 10000
+      val error: Double = 0.05
+
+      val zipfRandom = new ZipfRandom(_uniqueKeys, skew, seed)
+
+      val records: Seq[(Int, Int)] = DataGenerator.createKVIntDataSet(sc,
+        numRecords = numRecords,
+        uniqueKeys = _uniqueKeys,
+        uniqueValues = _uniqueValues,
+        numPartitions = 10,
+        randomSeed = seed,
+        skew = skew,
+        persistenceType = "memory").collect()
+
+
+      ((1 to _uniqueKeys).toSet).foreach((k : Int) => {
+        val realP = records.filter(_._1 == k - 1).length.toDouble / numRecords.toDouble
+        val p = zipfRandom.getProbability(k)
+        realP should be <= (p + error)
+        realP should be >= (p - error)
+      })
+
+    }
+    run(5, 5)
+    run(2, 10)
+    run(10, 2)
+  }
+
+
+  test("data skew = 1") {
+    def run(_uniqueKeys: Int, _uniqueValues: Int) = {
+
+      val skew = 1
+      val seed = 3333
+      val numRecords = 10000
+      val error: Double = 0.05
+
+      val zipfRandom = new ZipfRandom(_uniqueKeys, skew, seed)
+
+      val records: Seq[(Int, Int)] = DataGenerator.createKVIntDataSet(sc,
+        numRecords = numRecords,
+        uniqueKeys = _uniqueKeys,
+        uniqueValues = _uniqueValues,
+        numPartitions = 10,
+        randomSeed = seed,
+        skew = skew,
+        persistenceType = "memory").collect()
+
+
+      ((1 to _uniqueKeys).toSet).foreach((k : Int) => {
+        val realP = records.filter(_._1 == k - 1).length.toDouble / numRecords.toDouble
+        val p = zipfRandom.getProbability(k)
+        realP should be <= (p + error)
+        realP should be >= (p - error)
+      })
+
+    }
+    run(5, 5)
+    run(2, 10)
+    run(10, 2)
+  }
+
+  test("data skew = 3") {
+    def run(_uniqueKeys: Int, _uniqueValues: Int) = {
+
+      val skew = 3
+      val seed = 3333
+      val numRecords = 10000
+      val error: Double = 0.05
+
+      val zipfRandom = new ZipfRandom(_uniqueKeys, skew, seed)
+
+      val records: Seq[(Int, Int)] = DataGenerator.createKVIntDataSet(sc,
+        numRecords = numRecords,
+        uniqueKeys = _uniqueKeys,
+        uniqueValues = _uniqueValues,
+        numPartitions = 10,
+        randomSeed = seed,
+        skew = skew,
+        persistenceType = "memory").collect()
+
+
+      ((1 to _uniqueKeys).toSet).foreach((k : Int) => {
+        val realP = records.filter(_._1 == k - 1).length.toDouble / numRecords.toDouble
+        val p = zipfRandom.getProbability(k)
+        realP should be <= (p + error)
+        realP should be >= (p - error)
+      })
+
+    }
+    run(5, 5)
+    run(2, 10)
+    run(10, 2)
+  }
+
+  test("partitions must be different") {
+    def run(_uniqueKeys: Int, _uniqueValues: Int) = {
+
+      val skew = 2
+      val seed = 3333
+      val numRecords = 10000
+      val error: Double = 0.05
+
+      val zipfRandom = new ZipfRandom(_uniqueKeys, skew, seed)
+
+      val records: Seq[List[(Int, Int)]] = DataGenerator.createKVIntDataSet(sc,
+        numRecords = numRecords,
+        uniqueKeys = _uniqueKeys,
+        uniqueValues = _uniqueValues,
+        numPartitions = 10,
+        randomSeed = seed,
+        skew = skew,
+        persistenceType = "memory").mapPartitions(it => List(it.toList).iterator).collect()
+
+      (0 to records.length-2).foreach(i => {
+        (i+1 to records.length-1).foreach(j => {
+          records(i).map(_._1) should not equal records(j).map(_._1)
+          records(i).map(_._2) should not equal records(j).map(_._2)
+        })})
+    }
+    run(5, 5)
+    run(2, 10)
+    run(10, 2)
+  }
 }
