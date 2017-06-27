@@ -22,21 +22,21 @@ abstract class KVDataTest(sc: SparkContext, dataType: String = "string") extends
   val REDUCE_TASKS =     ("reduce-tasks",  "number of reduce tasks")
   val NUM_RECORDS =      ("num-records",   "number of input pairs")
   val INTER_TRIAL_WAIT = ("inter-trial-wait",   "seconds to sleep between trials")
-  val UNIQUE_KEYS =   ("unique-keys",   "(approx) number of unique keys")
-  val KEY_LENGTH =    ("key-length",    "lenth of keys in characters")
-  val UNIQUE_VALUES = ("unique-values", "(approx) number of unique values per key")
-  val VALUE_LENGTH =  ("value-length",  "length of values in characters")
+  val UNIQUE_KEYS =      ("unique-keys",   "(approx) number of unique keys")
+  val KEY_LENGTH =       ("key-length",    "lenth of keys in characters")
+  val UNIQUE_VALUES =    ("unique-values", "(approx) number of unique values per key")
+  val VALUE_LENGTH =     ("value-length",  "length of values in characters")
   val NUM_PARTITIONS =   ("num-partitions", "number of input partitions")
   val RANDOM_SEED =      ("random-seed", "seed for random number generator")
   val PERSISTENCE_TYPE = ("persistent-type", "input persistence (memory, disk, hdfs)")
   val STORAGE_LOCATION = ("storage-location", "directory used for storage with 'hdfs' persistence type")
   val HASH_RECORDS =     ("hash-records", "Use hashes instead of padded numbers for keys and values")
   val WAIT_FOR_EXIT =    ("wait-for-exit", "JVM will not exit until input is received from stdin")
-  val SKEWNESS =         ("skewness", "Degree of data skewness")
+  val SKEW =             ("skew", "Degree of data skewness")
 
   val longOptions = Seq(NUM_RECORDS)
   val intOptions = Seq(NUM_TRIALS, INTER_TRIAL_WAIT, REDUCE_TASKS, KEY_LENGTH, VALUE_LENGTH, UNIQUE_KEYS,
-    UNIQUE_VALUES, NUM_PARTITIONS, RANDOM_SEED, SKEWNESS)
+    UNIQUE_VALUES, NUM_PARTITIONS, RANDOM_SEED, SKEW)
   val stringOptions = Seq(PERSISTENCE_TYPE, STORAGE_LOCATION)
   val booleanOptions = Seq(WAIT_FOR_EXIT, HASH_RECORDS)
   val options = longOptions ++ intOptions ++ stringOptions  ++ booleanOptions
@@ -75,7 +75,7 @@ abstract class KVDataTest(sc: SparkContext, dataType: String = "string") extends
     val valueLength: Int = optionSet.valueOf(VALUE_LENGTH._1).asInstanceOf[Int]
     val numPartitions: Int = optionSet.valueOf(NUM_PARTITIONS._1).asInstanceOf[Int]
     val randomSeed: Int = optionSet.valueOf(RANDOM_SEED._1).asInstanceOf[Int]
-    val skewness: Int = optionSet.valueof(SKEWNESS._1).asInstanceOf[Int]
+    val skew: Int = optionSet.valueof(SKEW._1).asInstanceOf[Int]
     val persistenceType: String = optionSet.valueOf(PERSISTENCE_TYPE._1).asInstanceOf[String]
     val storageLocation: String = optionSet.valueOf(STORAGE_LOCATION._1).asInstanceOf[String]
 
@@ -93,10 +93,10 @@ abstract class KVDataTest(sc: SparkContext, dataType: String = "string") extends
     rdd = dataType match {
       case "string" =>
         DataGenerator.createKVStringDataSet(sc, numRecords, uniqueKeys, keyLength, uniqueValues,
-          valueLength, numPartitions, randomSeed, skewness, persistenceType, storageLocation, hashFunction)
+          valueLength, numPartitions, randomSeed, skew, persistenceType, storageLocation, hashFunction)
       case "int" =>
         DataGenerator.createKVIntDataSet(sc, numRecords, uniqueKeys, uniqueValues,
-          numPartitions, randomSeed, skewness, persistenceType, storageLocation)
+          numPartitions, randomSeed, skew, persistenceType, storageLocation)
       case _ =>
         throw new IllegalArgumentException("Unknown data type: " + dataType)
     }

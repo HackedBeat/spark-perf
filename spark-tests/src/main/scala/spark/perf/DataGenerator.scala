@@ -34,7 +34,7 @@ object DataGenerator {
                                uniqueValues: Int,
                                numPartitions: Int,
                                randomSeed: Int,
-                               skewness: Int) : RDD[(Int, Int)] =
+                               skew: Int) : RDD[(Int, Int)] =
   {
     val recordsPerPartition = (numRecords / numPartitions.toDouble).toInt
 
@@ -42,7 +42,7 @@ object DataGenerator {
 
       // Use per-partition seeds to avoid having identical data at all partitions
       val effectiveSeed = (randomSeed ^ index).toString.hashCode
-      val skewGenerator = new ZipfGenerator(uniqueKeys, skewness, effectiveSeed)
+      val skewGenerator = new ZipfGenerator(uniqueKeys, skew, effectiveSeed)
 
       val r = new Random(effectiveSeed)
       (1 to recordsPerPartition).map{i =>
@@ -65,12 +65,12 @@ object DataGenerator {
       uniqueValues: Int,
       numPartitions: Int,
       randomSeed: Int,
-      skewness: Int,
+      skew: Int,
       persistenceType: String,
       storageLocation: String = "/tmp/spark-perf-kv-data")
     : RDD[(Int, Int)] =
   {
-    val inputRDD = generateIntData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
+    val inputRDD = generateIntData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skew)
 
     val rdd = persistenceType match {
       case "memory" => {
@@ -112,13 +112,13 @@ object DataGenerator {
       valueLength: Int,
       numPartitions: Int,
       randomSeed: Int,
-      skewness: Int,
+      skew: Int,
       persistenceType: String,
       storageLocation: String = "/tmp/spark-perf-kv-data",
       hashFunction: Option[HashFunction] = None)
     : RDD[(String, String)] =
   {
-    val ints = generateIntData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skewness)
+    val ints = generateIntData(sc, numRecords, uniqueKeys, uniqueValues, numPartitions, randomSeed, skew)
 
     val inputRDD = ints.map { case (k, v) =>
       (paddedString(k, keyLength, hashFunction), paddedString(v, valueLength, hashFunction))
