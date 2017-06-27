@@ -75,7 +75,7 @@ abstract class KVDataTest(sc: SparkContext, dataType: String = "string") extends
     val valueLength: Int = optionSet.valueOf(VALUE_LENGTH._1).asInstanceOf[Int]
     val numPartitions: Int = optionSet.valueOf(NUM_PARTITIONS._1).asInstanceOf[Int]
     val randomSeed: Int = optionSet.valueOf(RANDOM_SEED._1).asInstanceOf[Int]
-    val skew: Int = optionSet.valueof(SKEW._1).asInstanceOf[Int]
+    val skew: Int = optionSet.valueOf(SKEW._1).asInstanceOf[Int]
     val persistenceType: String = optionSet.valueOf(PERSISTENCE_TYPE._1).asInstanceOf[String]
     val storageLocation: String = optionSet.valueOf(STORAGE_LOCATION._1).asInstanceOf[String]
 

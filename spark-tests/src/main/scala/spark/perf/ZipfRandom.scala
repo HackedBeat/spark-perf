@@ -2,8 +2,6 @@ package spark.perf
 
 import java.util.Random
 
-import com.sun.crypto.provider.AESCipher.AES128_CBC_NoPadding
-
 /**
   * Created by giovanniquattrocchi on 26/06/17.
   */
