@@ -46,7 +46,7 @@ object DataGenerator {
 
       val r = new Random(effectiveSeed)
       (1 to recordsPerPartition).map{i =>
-        val key = zipfRnd.nextInt()
+        val key = zipfRnd.nextInt()-1
         val value = r.nextInt(uniqueValues)
         (key, value)
       }.iterator

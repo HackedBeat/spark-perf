@@ -37,6 +37,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 3333,
+      skew = 0,
       persistenceType = "memory")
 
     data.count should equal (1000)
@@ -51,6 +52,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 3333,
+      skew = 0,
       persistenceType = "memory")
     val records = data.collect()
 
@@ -74,6 +76,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 3333,
+      skew = 0,
       persistenceType = "memory")
 
     val partitionData = data.glom.collect.zipWithIndex
@@ -96,6 +99,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 5555,
+      skew = 0,
       persistenceType = "memory").collect()
 
     val diskData = DataGenerator.createKVStringDataSet(sc,
@@ -106,6 +110,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 5555,
+      skew = 0,
       persistenceType = "disk").collect()
 
     val hdfsData = DataGenerator.createKVStringDataSet(sc,
@@ -116,6 +121,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 5555,
+      skew = 0,
       persistenceType = "hdfs",
       storageLocation = workingDir + "/hdfsData").collect()
 
@@ -157,6 +163,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 3333,
+      skew = 0,
       persistenceType = "memory")
 
     val data2 = DataGenerator.createKVStringDataSet(sc,
@@ -167,6 +174,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 3333,
+      skew = 0,
       persistenceType = "memory")
 
     data1.collect() should equal (data2.collect())
@@ -179,6 +187,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 4444,
+      skew = 0,
       persistenceType = "memory")
 
     val data4 = DataGenerator.createKVStringDataSet(sc,
@@ -189,6 +198,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       valueLength = 30,
       numPartitions = 5,
       randomSeed = 4444,
+      skew = 0,
       persistenceType = "memory")
 
     data3.collect() should equal (data4.collect())
@@ -206,6 +216,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
         valueLength = 30,
         numPartitions = 10,
         randomSeed = 3333,
+        skew = 0,
         persistenceType = "memory").collect()
 
       val records: Seq[(Int, Int)] = data.map{case (k, v) => (k.toInt, v.toInt)}
@@ -234,6 +245,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
         valueLength = 30,
         numPartitions = 10,
         randomSeed = 3333,
+        skew = 0,
         persistenceType = "memory",
         hashFunction = Some(Hashing.goodFastHash(30 * 4))).collect()
 
@@ -258,6 +270,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
         uniqueValues = _uniqueValues,
         numPartitions = 10,
         randomSeed = 3333,
+        skew = 0,
         persistenceType = "memory").collect()
 
       records.length should equal (10000)
