@@ -8,12 +8,12 @@ import com.sun.crypto.provider.AESCipher.AES128_CBC_NoPadding
   * Created by giovanniquattrocchi on 26/06/17.
   */
 
-class ZipfGenerator(val size: Int, val skew: Int, val seed: Int) {
+class ZipfRandom(val size: Int, val skew: Int, val seed: Int) {
 
   val rnd = new Random(seed)
   val harmonic: Double = (1 to size).foldLeft(0d)((a, b) => a + (1.0d / Math.pow(b, skew)))
 
-  def next() : Int = {
+  def nextInt() : Int = {
 
     var rank: Int = 0
     var p, dice: Double = 0
