@@ -279,6 +279,8 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       val uniqueValues = records.map(_._2).distinct
       val uniquePairs = records.distinct
 
+      System.out.println(records)
+
       uniqueKeys.toSet should equal ((0 to _uniqueKeys - 1).toSet)
       uniqueValues.toSet should equal ((0 to _uniqueValues - 1).toSet)
       uniquePairs.size should equal (_uniqueKeys * _uniqueValues)
@@ -395,9 +397,7 @@ class DataGenerationSuite extends FunSuite with BeforeAndAfterAll with ShouldMat
       val seed = 3333
       val numRecords = 10000
       val error: Double = 0.05
-
-      val zipfRandom = new ZipfRandom(_uniqueKeys, skew, seed)
-
+      
       val records: Seq[List[(Int, Int)]] = DataGenerator.createKVIntDataSet(sc,
         numRecords = numRecords,
         uniqueKeys = _uniqueKeys,

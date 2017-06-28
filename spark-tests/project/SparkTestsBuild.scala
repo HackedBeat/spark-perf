@@ -16,7 +16,8 @@ object SparkTestsBuild extends Build {
         "org.scalatest" %% "scalatest" % "2.2.1" % "test",
         "com.google.guava" % "guava" % "14.0.1",
         "org.apache.spark" %% "spark-core" % "2.0.0" % "provided",
-        "org.json4s" %% "json4s-native" % "3.2.9"
+        "org.json4s" %% "json4s-native" % "3.2.9",
+        "org.apache.commons" % "commons-math3" % "3.5"
       ),
       test in assembly := {},
       outputPath in assembly := file("target/spark-perf-tests-assembly.jar"),

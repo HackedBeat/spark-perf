@@ -44,7 +44,7 @@ object DataGenerator {
       val effectiveSeed = (randomSeed ^ index).toString.hashCode
       val zipfRnd = new ZipfRandom(uniqueKeys, skew, effectiveSeed)
 
-      val r = new Random(effectiveSeed)
+      val r = new Random(effectiveSeed * index)
       (1 to recordsPerPartition).map{i =>
         val key = zipfRnd.nextInt()-1
         val value = r.nextInt(uniqueValues)
