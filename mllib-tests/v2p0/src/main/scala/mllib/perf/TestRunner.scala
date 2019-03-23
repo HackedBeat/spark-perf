@@ -7,6 +7,7 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
 import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.SparkSession
 
 import mllib.perf.clustering.{GaussianMixtureTest, LDATest, PICTest}
 import mllib.perf.feature.Word2VecTest
@@ -22,7 +23,11 @@ object TestRunner {
       }
       val testName = args(0)
       val perfTestArgs = args.slice(1, args.length)
-      val sc = new SparkContext(new SparkConf().setAppName("TestRunner: " + testName))
+      val sparkSession = SparkSession
+        .builder()
+        .appName("TestRunner: " + testName)
+        .getOrCreate();
+      val sc = sparkSession.sparkContext
 
       // Unfortunate copy of code because there are Perf Tests in both projects and the compiler doesn't like it
       val test: PerfTest = testName match {
@@ -63,6 +68,10 @@ object TestRunner {
       val interTrialWait = test.getWait
 
       var testOptions: JValue = test.getOptions
+
+      val stageMetrics = ch.cern.sparkmeasure.StageMetrics(sparkSession) 
+      stageMetrics.begin()
+
       val results: Seq[JValue] = (1 to numTrials).map { i =>
         test.createInputData(rand.nextLong())
         val res: JValue = test.run()
@@ -70,6 +79,10 @@ object TestRunner {
         Thread.sleep(interTrialWait)
         res
       }
+
+      stageMetrics.end()
+      stageMetrics.printReport()
+
       // Report the test results as a JSON object describing the test options, Spark
       // configuration, Java system properties, as well as the per-test results.
       // This extra information helps to ensure reproducibility and makes automatic analysis easier.

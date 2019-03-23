@@ -26,7 +26,9 @@ object MLlibTestsBuild extends Build {
       // Allow the user to set the Spark version but default to look
       // for the Spark 2.0.0 artifact. Uncomment below to use spark.version
       // "org.apache.spark" %% "spark-mllib" % sparkVersion.value % "provided"
-      "org.apache.spark" %% "spark-mllib" % "2.0.0" % "provided"
+      "org.apache.spark" %% "spark-mllib" % "2.0.0" % "provided",
+      "org.apache.spark" %% "spark-sql" % "2.0.0" % "provided",
+      "ch.cern.sparkmeasure" %% "spark-measure" % "0.13"
     )
   )
 

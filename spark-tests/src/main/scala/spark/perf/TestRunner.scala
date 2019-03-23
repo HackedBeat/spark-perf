@@ -8,6 +8,7 @@ import org.json4s.jackson.JsonMethods._
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
+import org.apache.spark.sql.SparkSession
 
 object TestRunner {
   def main(args: Array[String]) {
@@ -18,7 +19,11 @@ object TestRunner {
     }
     val testName = args(0)
     val perfTestArgs = args.slice(1, args.length)
-    val sc = new SparkContext(new SparkConf().setAppName("TestRunner: " + testName))
+    val sparkSession = SparkSession
+      .builder()
+      .appName("TestRunner: " + testName)
+      .getOrCreate();
+    val sc = sparkSession.sparkContext
 
     val test: PerfTest = testName match {
       case "aggregate-by-key" => new AggregateByKey(sc)
@@ -31,8 +36,16 @@ object TestRunner {
       case "scheduling-throughput" => new SchedulerThroughputTest(sc)
     }
     test.initialize(perfTestArgs)
+
+    val stageMetrics = ch.cern.sparkmeasure.StageMetrics(sparkSession) 
+    stageMetrics.begin()
+    
     test.createInputData()
+
     val (testOptions: JValue, results: Seq[JValue]) = test.run()
+
+    stageMetrics.end()
+    stageMetrics.printReport()
 
     // Report the test results as a JSON object describing the test options, Spark
     // configuration, Java system properties, as well as the per-test times.
