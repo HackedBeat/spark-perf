@@ -152,7 +152,9 @@ COMMON_JAVA_OPTS = [
     # releases prior to 1.0.2
     # JavaOptionSet("spark.eventLog.enabled", [True]),
     # To ensure consistency across runs, we disable delay scheduling
-    JavaOptionSet("spark.locality.wait", [str(60 * 1000 * 1000)])
+    JavaOptionSet("spark.locality.wait", [str(60 * 1000 * 1000)]),
+    # Degree of Parallelism: (Total number of cores on the master and workers - 1) * executor count (2)
+    JavaOptionSet("spark.default.parallelism", [str((4 + 2 * 4 - 1) * 2)]),
 ]
 # Set driver memory here
 SPARK_DRIVER_MEMORY = "1g"
