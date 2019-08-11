@@ -147,14 +147,23 @@ COMMON_JAVA_OPTS = [
     # Fraction of JVM memory used for caching RDDs.
     JavaOptionSet("spark.storage.memoryFraction", [0.66]),
     JavaOptionSet("spark.serializer", ["org.apache.spark.serializer.JavaSerializer"]),
-    # JavaOptionSet("spark.executor.memory", ["9g"]),
     # Turn event logging on in order better diagnose failed tests. Off by default as it crashes
     # releases prior to 1.0.2
     # JavaOptionSet("spark.eventLog.enabled", [True]),
     # To ensure consistency across runs, we disable delay scheduling
     JavaOptionSet("spark.locality.wait", [str(60 * 1000 * 1000)]),
-    # Degree of Parallelism: (Total number of cores on the master and workers - 1) * executor count (2)
-    JavaOptionSet("spark.default.parallelism", [str((4 + 2 * 4 - 1) * 2)]),
+
+    JavaOptionSet("spark.executor.instances", ["5"]),
+    # The memory to be allocated for each executor
+    JavaOptionSet("spark.executor.memory", ["12g"]),
+    # The memory for YARN Application Master
+    JavaOptionSet("spark.yarn.am.memory", ["512m"]),
+    # Cores Per Executor
+    JavaOptionSet("spark.executor.cores", ["3"]),
+    # Equal to spark.executor.cores = Master Cores - OS Reserved Cores
+    JavaOptionSet("spark.driver.cores", ["3"]),
+    # Degree of Parallelism: spark.executor.instances * spark.executor.cores * Parallelism Per Core
+    JavaOptionSet("spark.default.parallelism", ["30"])
 ]
 # Set driver memory here
 SPARK_DRIVER_MEMORY = "1g"
