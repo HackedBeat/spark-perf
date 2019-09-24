@@ -80,7 +80,7 @@ RESTART_SPARK_CLUSTER = RESTART_SPARK_CLUSTER and not IS_YARN_MODE
 RSYNC_SPARK_HOME = True
 
 # Which tests to run
-RUN_SPARK_TESTS = True
+RUN_SPARK_TESTS = False
 RUN_PYSPARK_TESTS = False
 RUN_STREAMING_TESTS = False
 RUN_MLLIB_TESTS = True
@@ -88,7 +88,7 @@ RUN_PYTHON_MLLIB_TESTS = False
 
 # Which tests to prepare. Set this to true for the first
 # installation or whenever you make a change to the tests.
-PREP_SPARK_TESTS = True
+PREP_SPARK_TESTS = False
 PREP_PYSPARK_TESTS = False
 PREP_STREAMING_TESTS = False
 PREP_MLLIB_TESTS = True
